@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕🌍 The Last Human Cafe</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .game-container {
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(255,107,107,0.3);
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .title-emoji { font-size: 40px; display: block; text-align: center; margin-bottom: 10px; }
+        #story {
+            min-height: 150px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+        #story p { margin: 10px 0; }
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        .rating {
+            text-align: center;
+            font-size: 20px;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(255,215,0,0.2);
+            border-radius: 10px;
+        }
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.5s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ending-good { background: rgba(0,255,0,0.2); }
+        .ending-mid { background: rgba(255,165,0,0.2); }
+        .ending-bad { background: rgba(255,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>☕🌍 The Last Human Cafe 🌍☕</h1>
+        <span class="title-emoji">👽☕🌍</span>
+        
+        <div id="story" class="fade-in">
+            <p>👋 <strong>Welcome to Earth, Zog!</strong></p>
+            <p>You are an alien who just opened Earth's first coffee shop for the last humans!</p>
+            <p>💡 <strong>Your mission:</strong> Run a successful cafe and earn the trust of humans!</p>
+        </div>
+        
+        <div id="rating-display" class="rating hidden">
+            ⭐ Rating: <span id="rating-value">50</span>/100
+        </div>
+        
+        <div id="choices" class="choices">
+            <button onclick="startGame()">🚀 Start Game</button>
+        </div>
+    </div>
+
+    <script>
+        let rating = 50;
+        let currentDay = 0;
+        
+        const customers = [
+            { name: "👽 Steve", text: "I want my coffee... as dark as the void of space. Also, do you have any galactic croissants?" },
+            { name: "🧙‍♀️ Grandma Gladys", text: "Dear, I've been drinking coffee since before your species existed. Make it STRONG." },
+            { name: "🤖 Robot 3000", text: "BEEP BOOP. I require 97.3% caffeine. Also, is this wifi password 'password123'?" }
+        ];
+        
+        const responses = [
+            { text: "🤗 Friendly - 'Welcome! Let me prepare something special!'", points: 20 },
+            { text: "😎 Cool - 'Yeah, I got you. One cosmic brew coming up.'", points: 15 },
+            { text: "🧠 Smart - 'Ah, a sophisticated choice! I'll add some stardust.'", points: 25 }
+        ];
+        
+        function startGame() {
+            rating = 50;
+            currentDay = 0;
+            showDay();
+        }
+        
+        function showDay() {
+            currentDay++;
+            if (currentDay > 3) {
+                showEnding();
+                return;
+            }
+            
+            const customer = customers[Math.floor(Math.random() * customers.length)];
+            
+            let html = `<p>📅 <strong>DAY ${currentDay}</strong></p>`;
+            html += `<p>🚪 Customer enters: <strong>${customer.name}</strong></p>`;
+            html += `<p>🗣️ "${customer.text}"</p>`;
+            
+            document.getElementById('story').innerHTML = html;
+            document.getElementById('story').classList.remove('fade-in');
+            void document.getElementById('story').offsetWidth;
+            document.getElementById('story').classList.add('fade-in');
+            
+            let choicesHtml = '';
+            responses.forEach((r, i) => {
+                choicesHtml += `<button onclick="makeChoice(${r.points})">${r.text}</button>`;
+            });
+            document.getElementById('choices').innerHTML = choicesHtml;
+            
+            document.getElementById('rating-display').classList.remove('hidden');
+            document.getElementById('rating-value').textContent = rating;
+        }
+        
+        function makeChoice(points) {
+            const gained = points + Math.floor(Math.random() * 10) - 5;
+            rating += gained;
+            rating = Math.min(100, Math.max(0, rating));
+            
+            const messages = [
+                "✨ You beam warmly. The customer smiles!",
+                "😎 You nod coolly. The customer seems impressed.",
+                "🧠 You explain the science behind your brew. The customer is fascinated!"
+            ];
+            
+            document.getElementById('story').innerHTML = `<p>${messages[Math.floor(Math.random()*3)]}</p>`;
+            
+            setTimeout(() => {
+                showDay();
+            }, 1500);
+        }
+        
+        function showEnding() {
+            document.getElementById('choices').innerHTML = '<button onclick="startGame()">🔄 Play Again</button>';
+            
+            let html = '';
+            let endingClass = '';
+            
+            if (rating >= 80) {
+                html = `
+                    <h2>🏆 BEST CAFE IN THE GALAXY!</h2>
+                    <p>The humans absolutely LOVE your cafe!</p>
+                    <p>You've become a local celebrity.</p>
+                    <p>Even aliens from nearby planets come to visit.</p>
+                    <p style="font-size:30px">🎉 YOU WIN! 🎉</p>
+                `;
+                endingClass = 'ending-good';
+            } else if (rating >= 50) {
+                html = `
+                    <h2>⭐ DECENT - NOT BAD, ZOG!</h2>
+                    <p>Your cafe is doing okay.</p>
+                    <p>Some humans come regularly.</p>
+                    <p>There's room for improvement...</p>
+                `;
+                endingClass = 'ending-mid';
+            } else {
+                html = `
+                    <h2>💀 CLOSED - OH NO!</h2>
+                    <p>The humans didn't like your coffee...</p>
+                    <p>Or maybe it was that incident with the translator...</p>
+                    <p>Better luck on the next planet, Zog!</p>
+                `;
+                endingClass = 'ending-bad';
+            }
+            
+            document.getElementById('story').innerHTML = html;
+            document.getElementById('story').className = 'fade-in ' + endingClass;
+            document.getElementById('rating-value').textContent = rating;
+        }
+    </script>
+</body>
+</html>
